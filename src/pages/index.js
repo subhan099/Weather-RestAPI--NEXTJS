@@ -1,11 +1,28 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "@next/font/google";
+import styles from "@/styles/Home.module.css";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useReducer } from "next/router";
+const inter = Inter({ subsets: ["latin"] });
 
-const inter = Inter({ subsets: ['latin'] })
-
+const apiKey = "7ce54c3a3fa8432ab3e104604231110";
 export default function Home() {
+  const [weatherData, setWeatherData] = useState(null);
+  const [location, setLocation] = useState("");
+
+  const getWeatherData = async () => {
+    const apiUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+    console.log(apiUrl);
+    const response = await axios.get(apiUrl);
+    console.log("response", response);
+    setWeatherData(response.data);
+  };
+
+  const handleInputChange = (e) => {
+    setLocation(e.target.value);
+  };
   return (
     <>
       <Head>
@@ -15,109 +32,43 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.js</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
+        <div>
+          <input
+            type={"text"}
+            value={location}
+            className="input_bar"
+            placeholder="Enter the location"
+            onChange={handleInputChange}
           />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            className="btn"
+            onClick={() => {
+              getWeatherData();
+            }}
           >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
+            Check weather{" "}
+          </button>
+          {weatherData && (
+            <div>
+              <h1>Location: {weatherData?.location?.name}</h1>
+            </div>
+          )}
+          {weatherData && (
+            <div>
+              <h1>Temperature: {weatherData?.current?.temp_c}</h1>
+            </div>
+          )}
+          {weatherData && <h1> Sky: {weatherData?.current?.condition.text}</h1>}
+          {weatherData && <h1> Humidity: {weatherData?.current?.humidity}</h1>}
+          {weatherData && (
+            <h1> Wind Degree: {weatherData?.current?.wind_degree}</h1>
+          )}
+          {weatherData && (
+            <h1> Wind Direction: {weatherData?.current?.wind_dir}</h1>
+          )}
+          {console.log("=============", weatherData)}
         </div>
       </main>
     </>
-  )
+  );
 }
